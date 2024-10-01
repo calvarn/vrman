@@ -1,10 +1,47 @@
 #!/bin/bash
 
-
 # CONFIG STUFF
-VMUser="a1g"  # Username of vriosk user
+VMUser="user"  # Username of vriosk user
 FIXSUDO="true"  # Install and give the user sudo
-VISEversion="0.2"
+VISEversion="0.61"
+
+# Make sure OS is ubunununutu.
+if [ -f /etc/os-release ]; then
+    # freedesktop.org and systemd
+    . /etc/os-release
+    OS=$NAME
+    VER=$VERSION_ID
+elif type lsb_release >/dev/null 2>&1; then
+    # linuxbase.org
+    OS=$(lsb_release -si)
+    VER=$(lsb_release -sr)
+elif [ -f /etc/lsb-release ]; then
+    # For some versions of Debian/Ubuntu without lsb_release command
+    . /etc/lsb-release
+    OS=$DISTRIB_ID
+    VER=$DISTRIB_RELEASE
+elif [ -f /etc/debian_version ]; then
+    # Older Debian/Ubuntu/etc.
+    OS=Debian
+    VER=$(cat /etc/debian_version)
+elif [ -f /etc/SuSe-release ]; then
+    # Older SuSE/etc.
+    ...
+elif [ -f /etc/redhat-release ]; then
+    # Older Red Hat, CentOS, etc.
+    ...
+else
+    # Fall back to uname, e.g. "Linux <version>", also works for BSD, etc.
+    OS=$(uname -s)
+    VER=$(uname -r)
+fi
+
+if [ "$OS" != "Ubuntu" ]; then
+    if [ "$OS" != "Debian" ]; then
+        echo "Please run this script in an Ubuntu or Debian enviorment."
+        exit 1
+    fi
+fi
 
 # Root check
 if [ "$EUID" -ne 0 ]; then
@@ -12,18 +49,26 @@ if [ "$EUID" -ne 0 ]; then
     exit 1
 fi
 
+echo "__     _____ ____  _____ "
+echo "\ \   / /_ _/ ___|| ____|"
+echo " \ \ / / | |\___ \|  _|  "
+echo "  \ V /  | | ___) | |___ "
+echo "   \_/  |___|____/|_____| "
+echo ""
+echo "Welcome to VISE (Vrman Installation SystEm) version $VISEversion!"
+echo "Copyleft 2024 Caleb Varnadore. No rights reserved."
+echo ""
+echo WARNING: You are running a development branch of VISE.
+echo This is STRONGLY advised against, proceed only if you know what you are doing.
+echo Press enter to confirm you know what you are doing:
+read
+
 # Update package lists silently
 echo "Updating package lists, please stand by..."
 apt update >/dev/null 2>&1
 
 # Enable 32-bit architecture for Steam
 dpkg --add-architecture i386
-
-# figlet go brrrr
-if ! whereis figlet | grep -q '/'; then
-    echo "Installing figlet, please stand by..."
-    apt install -y figlet >/dev/null 2>&1
-fi
 
 # Check and install jq if not already installed
 if ! whereis jq | grep -q '/'; then
@@ -36,16 +81,6 @@ if ! whereis dialog | grep -q '/'; then
     echo "Installing dialog, please stand by..."
     apt install -y dialog >/dev/null 2>&1
 fi
-
-figlet "VISE"
-
-echo "Welcome to VISE (Vrman Installation SystEm) version $VISEversion!"
-echo "Copyleft 2024 Caleb Varnadore. No rights reserved."
-echo ""
-echo WARNING: You are running a development branch of VISE.
-echo This is STRONGLY advised against, proceed only if you know what you are doing.
-echo Press enter to confirm you know what you are doing:
-read
 
 
 # Remove CD from sources
@@ -82,11 +117,12 @@ if ! whereis steam | grep -q '/'; then
     echo steam steam/license note '' | sudo debconf-set-selections
 
     sudo apt install -y ./steam.deb >/dev/null 2>&1
+    sudo apt-get install -y steam >/dev/null 2>&1
     rm steam.deb  # Remove the .deb file after installation
 
     # Update steam dependency installer to avoid confirmation prompts
     steamdepper="/usr/bin/steamdeps"
-    sed -i 's/def update_packages(packages, install_confirmation=True):/def update_packages(packages, install_confirmation=False):/g' "$steamdepper"
+    sed -i 's/def update_packages(packages, install_confirmation=True):/def update_packages(packages, install_confirmation=False):/g' "$steamdepper" >/dev/null
 else
     echo "Steam is already installed, not installing..."
 fi
@@ -96,7 +132,13 @@ if [ -d "/home/$VMUser/.steam/steam/steamapps" ]; then
     echo "Steam library found."
 else
     echo "Steam library does not exist, starting Steam."
-    sudo -u "$VMUser" /home/$VMUser/.steam/steam/steam.sh -silent -login "vriosk_steamvrloader" "vrioskpassword" -shutdown >/dev/null 2>&1
+    sudo -u "$VMUser" /usr/bin/steam.sh -silent -login "vriosk_steamvrloader" "vrioskpassword" -shutdown &
+    FILE="/home/$VMUser/.steam/steam/steamapps/libraryfolders.vdf"
+
+    while [ ! -f "$FILE" ]; do
+        sleep 1  # Wait for 1 second before checking again
+    done
+    sudo -u "$VMUser" /home/$VMUser/.steam/steam/steam.sh -shutdown   
 fi
 
 # Save starting directory
@@ -149,7 +191,7 @@ if [ "$hmd" = "quest" ]; then
     # Variables
     REPO="alvr-org/ALVR"
     TARBALL_FILENAME="alvr_streamer_linux_latest.tar.gz"
-    VERSION_FILE="alvr_latest_version"
+    VERSION_FILE="alvr_streamer_version"
 
     # Fetch the latest release information from GitHub API
     echo "Fetching the latest ALVR release information..."
@@ -204,13 +246,30 @@ if [ "$hmd" = "quest" ]; then
     	fi
     fi
 
+# Update SteamVR
+if [ -f "/home/$VMUser/.steam/steam/steamapps/common/SteamVR/bin/vrclient.so" ]; then
+    echo "SteamVR located in default steam library location."
+else
+    echo "SteamVR not found. You will need to click the install button on the dialog. Press enter when ready..."
+    read
+    # If GabeN saw this he would punch me in the face.
+    # Still can't find a better way to check if Steam is initialized, so the ooga booga caveman solution will have to do.
+    sudo -u "$VMUser" /usr/games/steam -nofriendsui -login "vriosk_steamvrloader" "vrioskpassword" steam://install/250820 &
+    sleep 10
+    sudo -u "$VMUser" /usr/games/steam steam://open/games
+    FILE="/home/$VMUser/.steam/steam/steamapps/common/SteamVR/bin/vrclient.so"
 
+    while [ ! -f "$FILE" ]; do
+        sleep 1  # Wait for 1 second before checking again
+    done
+    sudo -u "$VMUser" /usr/games/steam -shutdown
+fi
 
     if [ -f "/home/$VMUser/.config/alvr/session.json" ]; then
     	echo "Found ALVR config"
     else
     	echo "No ALVR config found, loading ALVR..."
-    	$PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
+    	sudo -u "$VMUser" $PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
     	pid=$!
 
     	sleep 3
@@ -231,19 +290,15 @@ if [ "$hmd" = "quest" ]; then
     # Remove -x from the shebang line
     sed -i '1s|^#!/bin/bash -x|#!/bin/bash|' "$regeditor"
     # register driver
-    if $regeditor show 2>/dev/null | grep -q "alvr_server :" >/dev/null; then
+    if regeditor show 2>/dev/null | grep -q "alvr_server :"; then
        echo "ALVR Driver already installed."
     else
         echo "Installing ALVR Driver..."
-        $regeditor adddriver $driverDir
+        $regeditor adddriver $driverDir >/dev/null 2>&1
     fi
     apt install -y adb >/dev/null 2>&1
 fi
 
-# Update SteamVR
-./updateSteamVR.sh
-
-# From this point onward, headset is required
 check_device() {
     # Get the list of connected devices
     device_list=$(adb devices | grep -w "device")
@@ -252,15 +307,14 @@ check_device() {
     [[ -n "$device_list" ]]
 }
 
+# From this point onward, headset is required
 if [ "$hmd" = "quest" ]; then
+    echo "Please connect your Quest 2 Headset."
     while true; do
-        read -p "Please connect your Quest 2 Headset and press Enter when ready... " 
-
-        if check_device; then
+        sleep 1
+        if check_device > /dev/null 2>&1; then
             echo "Awesome work, headset connected successfully!"
             break
-        else
-            echo "No headset detected. Please try again."
         fi
     done
 
@@ -288,9 +342,7 @@ if [ "$hmd" = "quest" ]; then
     # Reload udev rules
     sudo udevadm control --reload-rules
     sudo udevadm trigger
-
     echo "Udev rules have been set up successfully."
-
 
     # Variables
     REPO="alvr-org/ALVR"
@@ -338,10 +390,10 @@ if [ "$hmd" = "quest" ]; then
 
     # Check if an update is necessary
     if [ "$LATEST_VERSION_NAME" != "$INSTALLED_VERSION" ]; then
-        echo "A new version is available. Downloading the APK from $APK_URL..."
+        echo "A new ALVR Client version is available. Downloading..."
         
         # Download the APK if the version is newer
-        curl -L -o "$APK_FILENAME" "$APK_URL"
+        curl -L -o "$APK_FILENAME" "$APK_URL" >/dev/null
 
         if [ $? -eq 0 ]; then
             echo "Download completed successfully: $APK_FILENAME"
@@ -367,11 +419,27 @@ if [ "$hmd" = "quest" ]; then
 
     # Update the version file with the latest version information
     echo "Version: $LATEST_VERSION_NAME" > "$VERSION_FILE"
-    echo "ALVR Client version information saved to $VERSION_FILE"
+
+#load alvr 
 
     read -p "Vrman is now going to attempt to load into the headset environment. Please put on the headset." 
     adb shell am start -n alvr.client.stable/android.app.NativeActivity
-    adb forward tcp:9943 tcp:9943
-    adb forward tcp:9944 tcp:9944
-    ./startSVR.sh
+    adb forward tcp:9943 tcp:9943 >/dev/null
+    adb forward tcp:9944 tcp:9944 >/dev/null
 fi
+
+
+# Startup SteamVR
+
+# Startup Steam
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
+sudo -u "$VMUser" /home/$VMUser/.steam/steam/steam.sh steam://open/games -silent -nofriendsui -login "vriosk_steamvrloader" "vrioskpassword" &
+# VERY BAD >:(
+sleep 8
+# Ask Steam to start SteamVR
+VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/nvidia_icd.json
+sudo -u "$VMUser" /home/$VMUser/.steam/steam/ubuntu12_32/steam-runtime/run.sh /home/$VMUser/.steam/steam/steamapps/common/SteamVR/bin/vrmonitor.sh 
+
+
+echo "End of stack"
+read
