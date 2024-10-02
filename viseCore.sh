@@ -273,9 +273,10 @@ fi
     	sudo -u "$VMUser" $PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
     	pid=$!
 
-    	sleep 3
+    	sleep 5
 
     	kill $pid
+     	sleep 3
     fi
 	
 
