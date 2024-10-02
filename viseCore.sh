@@ -132,7 +132,7 @@ if [ -d "/home/$VMUser/.steam/steam/steamapps" ]; then
     echo "Steam library found."
 else
     echo "Steam library does not exist, starting Steam."
-    sudo -u "$VMUser" /usr/bin/steam.sh -silent -login "vriosk_steamvrloader" "vrioskpassword" -shutdown &
+    sudo -u "$VMUser" steam -silent -login "vriosk_steamvrloader" "vrioskpassword" -shutdown &
     FILE="/home/$VMUser/.steam/steam/steamapps/libraryfolders.vdf"
 
     while [ ! -f "$FILE" ]; do
