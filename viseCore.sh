@@ -77,9 +77,9 @@ if ! whereis jq | grep -q '/'; then
 fi
 
 # Check and install dialog if not already installed
-if ! whereis dialog | grep -q '/'; then
-    echo "Installing dialog, please stand by..."
-    apt install -y dialog >/dev/null 2>&1
+if ! whereis whiptail | grep -q '/'; then
+    echo "Installing whiptail, please stand by..."
+    apt install -y whiptail >/dev/null 2>&1
 fi
 
 # wmctrl
@@ -152,32 +152,40 @@ fi
 curdir=$(pwd)
 # steam needs a second to shutdown
 sleep 3
+
 # Define the filename for HMD type
 hmdfilename="HMDtype"
 
-# Function to display the dialog menu for HMD selection
+# Function to display the whiptail menu for HMD selection
 function select_hmd() {
-    hmd_choice=$(dialog --title "Welcome to Vrisok!" \
-                        --menu "Please select your headset from the list below:" \
-                        15 50 2 \
-                        1 "Valve Index" \
-                        2 "Meta Quest 2" \
-                        3>&1 1>&2 2>&3)
+    hmd_choice=$(whiptail --title "Welcome to Vrisok!" \
+                           --menu "Please select your headset from the list below:" \
+                           15 50 3 \
+                           1 "Valve Index" \
+                           2 "Meta Quest 2" \
+                           3 "Cancel" \
+                           3>&1 1>&2 2>&3)
 
-    case $hmd_choice in
-        1)
-            echo "index" > "$hmdfilename"
-            echo "HMD set to Valve Index"
-            ;;
-        2)
-            echo "quest" > "$hmdfilename"
-            echo "HMD set to Meta Quest 2"
-            ;;
-        *)
-            dialog --msgbox "Invalid selection. Please try again." 5 40
-            select_hmd  # Call the function again
-            ;;
-    esac
+    exitstatus=$?
+    if [ $exitstatus = 0 ]; then
+        case $hmd_choice in
+            1)
+                echo "index" > "$hmdfilename"
+                whiptail --msgbox "HMD set to Valve Index" 5 40
+                ;;
+            2)
+                echo "quest" > "$hmdfilename"
+                whiptail --msgbox "HMD set to Meta Quest 2" 5 40
+                ;;
+            3)
+                whiptail --msgbox "Operation canceled." 5 40
+                exit 0  # Exit the script if the user cancels
+                ;;
+        esac
+    else
+        whiptail --msgbox "Invalid selection. Please try again." 5 40
+        select_hmd  # Call the function again
+    fi
 }
 
 # Check if the file exists
@@ -188,6 +196,7 @@ else
     reset
     select_hmd  # Loop until a valid selection is made
 fi
+
 
 # Install steamcmd
 echo steam steam/question select "I AGREE" | sudo debconf-set-selections
