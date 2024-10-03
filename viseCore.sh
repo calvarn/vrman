@@ -270,6 +270,7 @@ fi
     else
     	echo "No ALVR config found, loading ALVR..."
     	sudo -u "$VMUser" $PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
+     	sleep 3
 # Find all window IDs with "ALVR" in the title
 	window_ids=$(wmctrl -l | grep -i "ALVR" | awk '{print $1}')
 
