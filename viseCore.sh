@@ -158,10 +158,12 @@ function select_hmd() {
     case $hmd_choice in
         1)
             echo "index" > "$hmdfilename"
+	    hmd="index"
             echo "HMD set to Valve Index"
             ;;
         2)
             echo "quest" > "$hmdfilename"
+	    hmd="quest"
             echo "HMD set to Meta Quest 2"
             ;;
         3)
