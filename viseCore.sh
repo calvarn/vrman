@@ -82,6 +82,12 @@ if ! whereis dialog | grep -q '/'; then
     apt install -y dialog >/dev/null 2>&1
 fi
 
+# wmctrl
+if ! whereis wmctrl | grep -q '/'; then
+    echo "Installing wmctrl, please stand by..."
+    apt install -y wmctrl >/dev/null 2>&1
+fi
+
 
 # Remove CD from sources
 filename="/etc/apt/sources.list"
@@ -115,9 +121,10 @@ if ! whereis steam | grep -q '/'; then
 
     echo steam steam/question select "I AGREE" | sudo debconf-set-selections
     echo steam steam/license note '' | sudo debconf-set-selections
-
     sudo apt install -y ./steam.deb >/dev/null 2>&1
+    wmctrl -c "Information available" >/dev/null 2>&1
     sudo apt-get install -y steam >/dev/null 2>&1
+    wmctrl -c "Information available" >/dev/null 2>&1
     rm steam.deb  # Remove the .deb file after installation
 
     # Update steam dependency installer to avoid confirmation prompts
@@ -178,6 +185,7 @@ if [[ -e "$hmdfilename" ]]; then
     hmd=$(< "$hmdfilename")
     echo "HMD set to $hmd"
 else
+    reset
     select_hmd  # Loop until a valid selection is made
 fi
 
