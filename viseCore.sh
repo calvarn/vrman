@@ -182,10 +182,6 @@ if [[ -e "$hmdfilename" ]]; then
 else
     select_hmd  # Loop until a valid selection is made
 fi
-# Install steamcmd
-echo steam steam/question select "I AGREE" | sudo debconf-set-selections
-echo steam steam/license note '' | sudo debconf-set-selections
-apt install -y steamcmd >/dev/null 2>&1
 
 # Install curl for the ALVR updater if Quest is selected, then update ALVR
 if [ "$hmd" = "quest" ]; then
