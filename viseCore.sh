@@ -156,36 +156,33 @@ sleep 3
 # Define the filename for HMD type
 hmdfilename="HMDtype"
 
-# Function to display the whiptail menu for HMD selection
+# Function to display the menu and get user input
 function select_hmd() {
-    hmd_choice=$(whiptail --title "Welcome to Vrisok!" \
-                           --menu "Please select your headset from the list below:" \
-                           15 50 3 \
-                           1 "Valve Index" \
-                           2 "Meta Quest 2" \
-                           3 "Cancel" \
-                           3>&1 1>&2 2>&3)
+    echo "Welcome to Vrisok!"
+    echo "Please select your headset from the list below:"
+    echo "1) Valve Index"
+    echo "2) Meta Quest 2"
+    echo "3) Cancel"
+    read -p "Enter your choice (1-3): " hmd_choice
 
-    exitstatus=$?
-    if [ $exitstatus = 0 ]; then
-        case $hmd_choice in
-            1)
-                echo "index" > "$hmdfilename"
-                whiptail --msgbox "HMD set to Valve Index" 5 40
-                ;;
-            2)
-                echo "quest" > "$hmdfilename"
-                whiptail --msgbox "HMD set to Meta Quest 2" 5 40
-                ;;
-            3)
-                whiptail --msgbox "Operation canceled." 5 40
-                exit 0  # Exit the script if the user cancels
-                ;;
-        esac
-    else
-        whiptail --msgbox "Invalid selection. Please try again." 5 40
-        select_hmd  # Call the function again
-    fi
+    case $hmd_choice in
+        1)
+            echo "index" > "$hmdfilename"
+            echo "HMD set to Valve Index"
+            ;;
+        2)
+            echo "quest" > "$hmdfilename"
+            echo "HMD set to Meta Quest 2"
+            ;;
+        3)
+            echo "Operation canceled."
+            exit 0  # Exit the script if the user cancels
+            ;;
+        *)
+            echo "Invalid selection. Please try again."
+            select_hmd  # Call the function again
+            ;;
+    esac
 }
 
 # Check if the file exists
@@ -193,11 +190,8 @@ if [[ -e "$hmdfilename" ]]; then
     hmd=$(< "$hmdfilename")
     echo "HMD set to $hmd"
 else
-    reset
     select_hmd  # Loop until a valid selection is made
 fi
-
-
 # Install steamcmd
 echo steam steam/question select "I AGREE" | sudo debconf-set-selections
 echo steam steam/license note '' | sudo debconf-set-selections
