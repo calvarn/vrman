@@ -93,7 +93,7 @@ fi
 
 first_line=$(head -n 1 "$filename")
 if [[ $first_line == "deb cdrom"* ]]; then
-    sed -i '1s/^/# /' "$filename"
+    sed -i '1s/^/# /' "$filename" >/dev/null 2>&1
     echo "Disabled apt sourcing from cdrom."
 else
     echo "No apt cdrom source found, ignoring."
@@ -122,7 +122,7 @@ if ! whereis steam | grep -q '/'; then
 
     # Update steam dependency installer to avoid confirmation prompts
     steamdepper="/usr/bin/steamdeps"
-    sed -i 's/def update_packages(packages, install_confirmation=True):/def update_packages(packages, install_confirmation=False):/g' "$steamdepper" >/dev/null
+    sed -i 's/def update_packages(packages, install_confirmation=True):/def update_packages(packages, install_confirmation=False):/g' "$steamdepper" >/dev/null 2>&1
 else
     echo "Steam is already installed, not installing..."
 fi
@@ -143,7 +143,8 @@ fi
 
 # Save starting directory
 curdir=$(pwd)
-
+# steam needs a second to shutdown
+sleep 3
 # Define the filename for HMD type
 hmdfilename="HMDtype"
 
