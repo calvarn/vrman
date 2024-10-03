@@ -3,7 +3,7 @@
 # CONFIG STUFF
 VMUser="user"  # Username of vriosk user
 FIXSUDO="true"  # Install and give the user sudo
-VISEversion="0.61"
+VISEversion="0.63"
 
 # Make sure OS is ubunununutu.
 if [ -f /etc/os-release ]; then
@@ -58,10 +58,6 @@ echo ""
 echo "Welcome to VISE (Vrman Installation SystEm) version $VISEversion!"
 echo "Copyleft 2024 Caleb Varnadore. No rights reserved."
 echo ""
-echo WARNING: You are running a development branch of VISE.
-echo This is STRONGLY advised against, proceed only if you know what you are doing.
-echo Press enter to confirm you know what you are doing:
-read
 
 # Update package lists silently
 echo "Updating package lists, please stand by..."
@@ -74,12 +70,6 @@ dpkg --add-architecture i386
 if ! whereis jq | grep -q '/'; then
     echo "Installing jq, please stand by..."
     apt install -y jq >/dev/null 2>&1
-fi
-
-# Check and install dialog if not already installed
-if ! whereis whiptail | grep -q '/'; then
-    echo "Installing whiptail, please stand by..."
-    apt install -y whiptail >/dev/null 2>&1
 fi
 
 # wmctrl
