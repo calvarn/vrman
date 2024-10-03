@@ -3,4 +3,5 @@ sudo systemctl disable unattended-upgrades
 rm -f -r vrman/
 sudo apt install -y git
 git clone https://github.com/calvarn/vrman/ >/dev/null
-sudo ./vrman/viseCore.sh
+cd vrman
+sudo ./viseCore.sh
