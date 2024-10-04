@@ -258,8 +258,10 @@ if [ "$hmd" = "quest" ]; then
 if [ -f "/home/$VMUser/.steam/steam/steamapps/common/SteamVR/bin/vrclient.so" ]; then
     echo "SteamVR located in default steam library location."
 else
-    echo "SteamVR not found. You will need to click the install button on the dialog. Press enter when ready..."
-    read
+    if [ "$trialMode" == "false" ]; then
+       echo "SteamVR not found. You will need to click the install button on the dialog. Press enter when ready..."
+       read
+    fi
     # If GabeN saw this he would punch me in the face.
     # Still can't find a better way to check if Steam is initialized, so the ooga booga caveman solution will have to do.
     sudo -u "$VMUser" /usr/games/steam -login "vriosk_steamvrloader" "vrioskpassword" -nofriendsui steam://install/250820 >/dev/null 2>&1 &
@@ -291,8 +293,8 @@ fi
     configfile="/home/$VMUser/.config/alvr/session.json"
 
     # update config
-    sed -i 's/"open_setup_wizard": true/"open_setup_wizard": false/g' $configfile
-    sed -i 's/"auto_trust_clients": false/"auto_trust_clients": true/g' $configfile
+    sed -i 's/"open_setup_wizard": true/"open_setup_wizard": false/g' $configfile >/dev/null 2>%1
+    sed -i 's/"auto_trust_clients": false/"auto_trust_clients": true/g' $configfile >/dev/null 2>&1
     # Remove -x from the shebang line
     sed -i '1s|^#!/bin/bash -x|#!/bin/bash|' "$regeditor"
     # register driver
