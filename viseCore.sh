@@ -5,7 +5,7 @@ trialMode="true"
 trialHMD='quest'
 VMUser="user"  # Username of vriosk user
 FIXSUDO="true"  # Install and give the user sudo
-VISEversion="0.63"
+VISEversion="0.65"
 
 # Make sure OS is ubunununutu.
 if [ -f /etc/os-release ]; then
