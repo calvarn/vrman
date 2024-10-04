@@ -1,6 +1,8 @@
 #!/bin/bash
 
 # CONFIG STUFF
+trialMode="true"
+trialHMD='quest'
 VMUser="user"  # Username of vriosk user
 FIXSUDO="true"  # Install and give the user sudo
 VISEversion="0.63"
@@ -183,7 +185,11 @@ if [[ -e "$hmdfilename" ]]; then
     hmd=$(< "$hmdfilename")
     echo "HMD set to $hmd"
 else
-    select_hmd  # Loop until a valid selection is made
+    if [ $trialMode == "false"
+       select_hmd  # Loop until a valid selection is made
+    else
+       hmd="$trialHMD"
+    fi
 fi
 
 # Install curl for the ALVR updater if Quest is selected, then update ALVR
