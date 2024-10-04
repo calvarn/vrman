@@ -313,6 +313,11 @@ check_device() {
     [[ -n "$device_list" ]]
 }
 
+if [ "$trialMode" == "true" ]; then
+   echo "Host setup complete." 
+   exit 1
+fi
+
 # From this point onward, headset is required
 if [ "$hmd" = "quest" ]; then
     echo "Please connect your Quest 2 Headset."
