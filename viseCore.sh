@@ -151,6 +151,7 @@ hmdfilename="HMDtype"
 # Function to display the menu and get user input
 function select_hmd() {
     clear
+    echo ""
     echo "Welcome to Vrisok!"
     echo "Please select your headset from the list below:"
     echo "1) Valve Index"
