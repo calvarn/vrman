@@ -237,7 +237,7 @@ if [ "$hmd" = "quest" ]; then
         echo "The saved version of ALVR Streamer is up-to-date."
     else
 	    # Download the tarball if the version is newer
-	echo "Downloading the ALVR Sreamer tarball from $TARBALL_URL..."
+	echo "Downloading the ALVR Sreamer tarball."
 	curl -L -o "$TARBALL_FILENAME" "$TARBALL_URL" >/dev/null 2>&1
 
         if [ $? -eq 0 ]; then
@@ -245,7 +245,6 @@ if [ "$hmd" = "quest" ]; then
     
     	    # Save the new version name to a text file
     	   echo "Version: $LATEST_VERSION_NAME" > "$VERSION_FILE"
-    	   echo "Version information saved to $VERSION_FILE"
     	   echo "Extracting new ALVR streamer..."
     	   tar -xzf "$TARBALL_FILENAME"
         else
