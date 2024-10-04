@@ -271,11 +271,22 @@ fi
     	echo "No ALVR config found, loading ALVR..."
     	sudo -u "$VMUser" $PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
      	sleep 3
-	window_ids=$(wmctrl -l | grep "ALVR" | awk '{print $1}')
+	# Get the window titles of all windows with "ALVR" in the title
+	window_titles=$(wmctrl -l | grep "ALVR" | awk '{$1=""; print $0}' | sed 's/^[ \t]*//')
 
-	# Loop through the window IDs and close each one
-	for id in $window_ids; do
-	    wmctrl -c "$id"
+	# Debug: Print the window titles
+	echo "Window Titles: $window_titles"
+
+	# Check if there are any window titles found
+	if [ -z "$window_titles" ]; then
+ 		echo "No windows found with 'ALVR' in the title."
+		exit 1
+	fi
+
+# Loop through the window titles and close each one
+	for title in $window_titles; do
+	    wmctrl -c "$title"
+	    echo "Closed window: $title"
 	done
      	sleep 3
     fi
