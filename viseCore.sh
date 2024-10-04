@@ -241,7 +241,6 @@ if [ "$hmd" = "quest" ]; then
 	curl -L -o "$TARBALL_FILENAME" "$TARBALL_URL" >/dev/null 2>&1
 
         if [ $? -eq 0 ]; then
-	   echo "Download completed successfully: $TARBALL_FILENAME"
     
     	    # Save the new version name to a text file
     	   echo "Version: $LATEST_VERSION_NAME" > "$VERSION_FILE"
