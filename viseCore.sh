@@ -254,9 +254,9 @@ else
     read
     # If GabeN saw this he would punch me in the face.
     # Still can't find a better way to check if Steam is initialized, so the ooga booga caveman solution will have to do.
-    sudo -u "$VMUser" /usr/games/steam -nofriendsui -login "vriosk_steamvrloader" "vrioskpassword" steam://install/250820 >/dev/null 2>&1 &
+    sudo -u "$VMUser" /usr/games/steam -login "vriosk_steamvrloader" "vrioskpassword" -nofriendsui steam://install/250820 >/dev/null 2>&1 &
     sleep 10
-    sudo -u "$VMUser" /usr/games/steam steam://open/games >/dev/null 2>&1
+    sudo -u "$VMUser" /usr/games/steam -nofriendsui steam://open/games >/dev/null 2>&1
     FILE="/home/$VMUser/.steam/steam/steamapps/common/SteamVR/bin/vrclient.so"
 
     while [ ! -f "$FILE" ]; do
