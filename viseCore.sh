@@ -186,7 +186,7 @@ if [[ -e "$hmdfilename" ]]; then
     hmd=$(< "$hmdfilename")
     echo "HMD set to $hmd"
 else
-    if [ $trialMode == "false"
+    if [ $trialMode == "false" ]; then
        select_hmd  # Loop until a valid selection is made
     else
        hmd="$trialHMD"
