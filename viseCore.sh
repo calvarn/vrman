@@ -238,7 +238,7 @@ if [ "$hmd" = "quest" ]; then
     else
 	    # Download the tarball if the version is newer
 	echo "Downloading the ALVR Sreamer tarball from $TARBALL_URL..."
-	curl -L -o "$TARBALL_FILENAME" "$TARBALL_URL"
+	curl -L -o "$TARBALL_FILENAME" "$TARBALL_URL" >/dev/null 2>&1
 
         if [ $? -eq 0 ]; then
 	   echo "Download completed successfully: $TARBALL_FILENAME"
