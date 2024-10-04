@@ -272,7 +272,6 @@ fi
     	sudo -u "$VMUser" $PWD/alvr_streamer_linux/bin/alvr_dashboard > /dev/null 2>&1 &
      	sleep 2
 	wmctrl -c "ALVR Dashboard (streamer $LATEST_VERSION_NAME)"
-	done
      	sleep 1
     fi
 	
